@@ -25,18 +25,22 @@ import model
 import time
 import csv
 
+csv.field_size_limit(2147483647)
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
 
 
-def new_controller():
+def newController():
     """
     Crea una instancia del modelo
     """
-    #TODO: Llamar la función del modelo que crea las estructuras de datos
-    pass
+    control = {
+        'model': None
+    }
+    control['model'] = model.newCatalog()
+    return control
 
 
 # Funciones para la carga de datos
@@ -45,9 +49,29 @@ def load_data(control, filename):
     """
     Carga los datos del reto
     """
+    publ = LoadJobs(catalog) 
     # TODO: Realizar la carga de datos
-    pass
+    return publ
 
+def loadEmploymentTypes(catalog):
+    """
+    Carga csv employment_types
+    """
+    tagsfile = cf.data_dir + 'small-employment_types.csv'
+    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))  #cambiar todo
+    for tag in input_file:
+        model.addTag(catalog, tag)
+    return model.tagSize(catalog)
+
+def loadJobs(catalog):
+    """
+    Carga csv jobs
+    """
+    datefile = cf.data_dir + 'books-small.csv'
+    input_file = csv.DictReader(open(datefile, encoding='utf-8'))
+    for publ in input_file:
+        model.addPubl(catalog, publ)        
+    return model.publSizeSize(catalog)
 
 # Funciones de ordenamiento
 

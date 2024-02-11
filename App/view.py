@@ -27,7 +27,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
 assert cf
-from tabulate import tabulate
+#from tabulate import tabulate REVISAR - TABULATE NO DEFINIDO
 import traceback
 
 """
@@ -38,12 +38,12 @@ operación solicitada
 """
 
 
-def new_controller():
+def newController():
     """
-        Se crea una instancia del controlador
+    Se crea una instancia del controlador
     """
-    #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    pass
+    control = controller.newController()
+    return control
 
 
 def print_menu():
@@ -60,12 +60,12 @@ def print_menu():
     print("0- Salir")
 
 
-def load_data(control):
+def loadData(control):
     """
-    Carga los datos
+    Solicita al controlador que cargue los datos en el modelo
     """
-    #TODO: Realizar la carga de datos
-    pass
+    publ = controller.loadData(control)
+    return publ
 
 
 def print_data(control, id):

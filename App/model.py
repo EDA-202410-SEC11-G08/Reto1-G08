@@ -52,6 +52,27 @@ def new_data_structs():
     #TODO: Inicializar las estructuras de datos
     pass
 
+def newCatalog():
+    """
+    Inicializa el catálogo de libros. Crea una lista vacia para guardar
+    todos los libros, adicionalmente, crea una lista vacia para los autores,
+    una lista vacia para los generos y una lista vacia para la asociación
+    generos y libros. Retorna el catalogo inicializado.
+    """
+    catalog = {'Publicación': None,
+               'Oferta': None,
+               'Empresa': None,
+               'Experticia': None,
+               'País': None,
+               'Ciudad': None}
+
+    catalog['Publicación'] = lt.newList('SINGLE_LINKED')   #ESTRUCTURA DE DATO ESCOGIDA AL AZAR CAMBIAR
+    catalog['Oferta'] = lt.newList('ARRAY_LIST')
+    catalog['Empresa'] = lt.newList('ARRAY_LIST')
+    catalog['País'] = lt.newList('SINGLE_LINKED')
+    catalog['Ciudad'] = lt.newList('SINGLE_LINKED')
+    
+    return catalog
 
 # Funciones para agregar informacion al modelo
 
@@ -62,6 +83,12 @@ def add_data(data_structs, data):
     #TODO: Crear la función para agregar elementos a una lista
     pass
 
+def addPubl(catalog, publ):
+    if publ is None:
+        publ = 'Desconocido'
+    lt.addLast(catalog['Publicación'], publ)
+    
+    return catalog
 
 # Funciones para creacion de datos
 
@@ -89,7 +116,8 @@ def data_size(data_structs):
     """
     #TODO: Crear la función para obtener el tamaño de una lista
     pass
-
+def publSize(catalog):
+    return lt.size(catalog['Publicación'])
 
 def req_1(data_structs):
     """
