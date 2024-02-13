@@ -45,12 +45,13 @@ def newController():
 
 # Funciones para la carga de datos
 
-def load_data(control, filename):
+def loadData(control):
     """
-    Carga los datos del reto
+    Carga los datos de los archivos y cargar los datos en la
+    estructura de datos
     """
-    publ = LoadJobs(catalog) 
-    # TODO: Realizar la carga de datos
+    catalog = control['model']
+    publ = loadJobs(catalog)
     return publ
 
 def loadEmploymentTypes(catalog):

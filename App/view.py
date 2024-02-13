@@ -60,11 +60,11 @@ def print_menu():
     print("0- Salir")
 
 
-def loadData(control):
+def load_data(control):
     """
     Solicita al controlador que cargue los datos en el modelo
     """
-    publ = controller.loadData(control)
+    publ = controller.load_data(control)
     return publ
 
 
@@ -140,7 +140,7 @@ def print_req_8(control):
 
 
 # Se crea el controlador asociado a la vista
-control = new_controller()
+control = newController()
 
 # main del reto
 if __name__ == "__main__":
