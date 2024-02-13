@@ -47,7 +47,7 @@ def new_controller():
 
 
 def print_menu():
-    print("commit")
+    print("cd.rodriguezb1")
     print("Bienvenido")
     print("1- Cargar información")
     print("2- Ejecutar Requerimiento 1")
