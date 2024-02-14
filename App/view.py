@@ -38,12 +38,12 @@ operación solicitada
 """
 
 
-def new_controller():
+def newController():
     """
-        Se crea una instancia del controlador
+    Se crea una instancia del controlador
     """
-    #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    pass
+    control = controller.newController()
+    return control
 
 
 def print_menu():
@@ -61,12 +61,12 @@ def print_menu():
     print("0- Salir")
 
 
-def load_data(control):
+def loadData(control):
     """
-    Carga los datos
+    Solicita al controlador que cargue los datos en el modelo
     """
-    #TODO: Realizar la carga de datos
-    pass
+    jobs, empType, multiLoc, skills = controller.loadData(control)
+    return jobs, empType, multiLoc, skills
 
 
 def print_data(control, id):
@@ -141,7 +141,7 @@ def print_req_8(control):
 
 
 # Se crea el controlador asociado a la vista
-control = new_controller()
+control = newController()
 
 # main del reto
 if __name__ == "__main__":
@@ -155,7 +155,14 @@ if __name__ == "__main__":
         inputs = input('Seleccione una opción para continuar\n')
         if int(inputs) == 1:
             print("Cargando información de los archivos ....\n")
-            data = load_data(control)
+            jobs, empType, multiLoc, skills = loadData(control)
+            print('Ofertas cargadas: '+ str(jobs))
+            print('Tipos de empleos cargados '+ str(empType))
+            print('Multilocaciones cargadas '+ str(multiLoc))
+            print('Habilidades cargadas '+ str(skills))
+            table = controller.loadTable(control, 3)
+            print(tabulate(table))
+            
         elif int(inputs) == 2:
             print_req_1(control)
 

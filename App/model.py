@@ -43,25 +43,57 @@ dos listas, una para los videos, otra para las categorias de los mismos.
 
 # Construccion de modelos
 
-
-def new_data_structs():
+def newCatalog():
     """
-    Inicializa las estructuras de datos del modelo. Las crea de
-    manera vacía para posteriormente almacenar la información.
+    Inicializa el catálogo de ofertas. Crea una lista para la fehca de publicación, la oferta de trabajo, la empresa que da la oferta,
+    pais de la oferta y ciudad de la oferta
     """
-    #TODO: Inicializar las estructuras de datos
-    pass
-
+    catalog = {'Publicación': None,
+               'Oferta': None,
+               'Empresa': None,
+               'Experticia': None,
+               'País': None,
+               'Ciudad': None}
+    # Obtenidos de jobs.csv
+    catalog['Publicación'] = lt.newList('ARRAY_LIST')   #ESTRUCTURA DE DATO ESCOGIDA AL AZAR CAMBIAR
+    catalog['Oferta'] = lt.newList('ARRAY_LIST')
+    catalog['Empresa'] = lt.newList('ARRAY_LIST')
+    catalog['Experticia'] = lt.newList('ARRAY_LIST')
+    catalog['País'] = lt.newList('SINGLE_LINKED')
+    catalog['Ciudad'] = lt.newList('SINGLE_LINKED')
+    # Obtenidos de employment_types.csv
+    catalog['Tipos'] = lt.newList('SINGLE_LINKED')
+    # Obtenidos de multilocations.csv
+    catalog['Multi Locaciones'] = lt.newList('SINGLE_LINKED')
+    # Obtenidos de skills.csv
+    catalog['Habilidades'] = lt.newList('SINGLE_LINKED')
+    return catalog
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
-    """
-    Función para agregar nuevos elementos a la lista
-    """
-    #TODO: Crear la función para agregar elementos a una lista
-    pass
+def addDate(catalog, row):
+    lt.addLast(catalog['Publicación'], row)
+    return catalog
 
+def addJob(catalog, row):
+    lt.addLast(catalog['Oferta'], row)
+    return catalog
+
+def addCompany(catalog, row):
+    lt.addLast(catalog['Empresa'], row)
+    return catalog
+
+def addExp(catalog, row):
+    lt.addLast(catalog['Experticia'], row)
+    return catalog
+
+def addCountry(catalog, row):
+    lt.addLast(catalog['País'], row)
+    return catalog
+
+def addCity(catalog, row):
+    lt.addLast(catalog['Ciudad'], row)
+    return catalog
 
 # Funciones para creacion de datos
 
@@ -82,14 +114,17 @@ def get_data(data_structs, id):
     #TODO: Crear la función para obtener un dato de una lista
     pass
 
+def JobSize(catalog):
+    return lt.size(catalog['Oferta'])
 
-def data_size(data_structs):
-    """
-    Retorna el tamaño de la lista de datos
-    """
-    #TODO: Crear la función para obtener el tamaño de una lista
-    pass
+def ETSize(catalog):
+    return lt.size(catalog['Tipos'])
 
+def MLSize(catalog):
+    return lt.size(catalog['Multi Locaciones'])
+
+def SkillSize(catalog):
+    return lt.size(catalog['Habilidades'])
 
 def req_1(data_structs):
     """
@@ -187,3 +222,19 @@ def sort(data_structs):
     """
     #TODO: Crear función de ordenamiento
     pass
+
+def printTable(catalog, num):
+    num += 1
+    table = []
+    header = ['Oferta','Empresa','Experticia','Publicación','País','Ciudad']
+    table.append(header)
+
+    for i in range(1,num+1):
+        table.append([lt.getElement(catalog['Oferta'],i),
+                        lt.getElement(catalog['Empresa'],i),
+                        lt.getElement(catalog['Experticia'],i),
+                        lt.getElement(catalog['Publicación'],i),
+                        lt.getElement(catalog['País'],i),
+                        lt.getElement(catalog['Ciudad'],i)])
+    
+    return table
