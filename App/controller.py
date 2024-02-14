@@ -51,29 +51,59 @@ def loadData(control):
     estructura de datos
     """
     catalog = control['model']
-    publ = loadJobs(catalog)
-    return publ
+    jobs = loadJobs(catalog)
+    empType = loadEmploymentTypes(catalog)
+    multiLoc = loadMultiLocations(catalog)
+    skills = loadSkills(catalog)
+    
+    return jobs, empType, multiLoc, skills
 
-def loadEmploymentTypes(catalog):
-    """
-    Carga csv employment_types
-    """
-    tagsfile = cf.data_dir + 'small-employment_types.csv'
-    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))  #cambiar todo
-    for tag in input_file:
-        model.addTag(catalog, tag)
-    return model.tagSize(catalog)
 
 def loadJobs(catalog):
     """
     Carga csv jobs
     """
-    datefile = cf.data_dir + 'books-small.csv'
-    input_file = csv.DictReader(open(datefile, encoding='utf-8'))
-    for publ in input_file:
-        model.addPubl(catalog, publ)        
-    return model.publSizeSize(catalog)
+    datefile = cf.data_dir + 'data/small-jobs.csv'
+    input_file = csv.DictReader(open(datefile, encoding='utf-8'), restval= 'Desconocido')
+    for row in input_file:
+        
+        model.addDate(catalog, row['published_at'])    
+        model.addJob(catalog, row['title'])   
+        model.addCompany(catalog, row['company_name'])
+        model.addExp(catalog, row['experience_level'])
+        model.addCountry(catalog, row['country_code'])
+        model.addCity(catalog, row['city'])
+        
+    return model.JobSize(catalog)
 
+# Falta extrar info de las filas y añadirlas al catalogo general
+def loadEmploymentTypes(catalog):
+    """
+    Carga csv employment_types
+    """
+    tagsfile = cf.data_dir + 'data/small-employments_types.csv'
+    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    return model.ETSize(catalog)
+
+def loadMultiLocations(catalog):
+    """
+    Carga csv multilocations
+    """
+    tagsfile = cf.data_dir + 'data/small-multilocations.csv'
+    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    return model.MLSize(catalog)
+
+def loadSkills(catalog):
+    """
+    Carga csv skills
+    """
+    tagsfile = cf.data_dir + 'data/small-skills.csv'
+    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    return model.SkillSize(catalog)
+
+def loadTable(control, num):
+    catalog = control['model']
+    return model.printTable(catalog,num)
 # Funciones de ordenamiento
 
 def sort(control):

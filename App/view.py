@@ -60,12 +60,12 @@ def print_menu():
     print("0- Salir")
 
 
-def load_data(control):
+def loadData(control):
     """
     Solicita al controlador que cargue los datos en el modelo
     """
-    publ = controller.load_data(control)
-    return publ
+    jobs, empType, multiLoc, skills = controller.loadData(control)
+    return jobs, empType, multiLoc, skills
 
 
 def print_data(control, id):
@@ -154,7 +154,14 @@ if __name__ == "__main__":
         inputs = input('Seleccione una opción para continuar\n')
         if int(inputs) == 1:
             print("Cargando información de los archivos ....\n")
-            data = load_data(control)
+            jobs, empType, multiLoc, skills = loadData(control)
+            print('Ofertas cargadas: '+ str(jobs))
+            print('Tipos de empleos cargados '+ str(empType))
+            print('Multilocaciones cargadas '+ str(multiLoc))
+            print('Habilidades cargadas '+ str(skills))
+            table = controller.loadTable(control, 3)
+            print(tabulate(table))
+            
         elif int(inputs) == 2:
             print_req_1(control)
 
