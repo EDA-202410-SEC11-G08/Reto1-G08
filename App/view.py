@@ -29,6 +29,8 @@ from DISClib.ADT import queue as qu
 assert cf
 from tabulate import tabulate
 import traceback
+import threading
+
 
 """
 La vista se encarga de la interacción con el usuario
@@ -193,3 +195,9 @@ if __name__ == "__main__":
         else:
             print("Opción errónea, vuelva a elegir.\n")
     sys.exit(0)
+if __name__ == "__main__":     
+    # TODO ajuste del main para reserar memoria (parte 2)     
+    threading.stack_size(67108864*2)  # 128MB stack     
+    sys.setrecursionlimit(default_limit*1000000)     
+    thread = threading.Thread(target=menu_cycle)     
+    thread.start()
