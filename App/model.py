@@ -29,18 +29,22 @@ import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
-from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.Algorithms.Sorting import shellsort as shs
 from DISClib.Algorithms.Sorting import insertionsort as ins
-from DISClib.Algorithms.Sorting import selectionsort as se
-from DISClib.Algorithms.Sorting import mergesort as merg
-from DISClib.Algorithms.Sorting import quicksort as quk
+from DISClib.Algorithms.Sorting import selectionsort as ses
+from DISClib.Algorithms.Sorting import mergesort as mes
+from DISClib.Algorithms.Sorting import quicksort as qus
+from DISClib.Algorithms.Sorting import customsort as cus
+from DISClib.Algorithms.Sorting import heapsort as hes
+from DISClib.Algorithms.Sorting import bogosort as bos
+from datetime import datetime as date
 assert cf
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
 dos listas, una para los videos, otra para las categorias de los mismos.
 """
-
+sort_algorithm = None
 # Construccion de modelos
 
 def newCatalog():
@@ -48,51 +52,35 @@ def newCatalog():
     Inicializa el catálogo de ofertas. Crea una lista para la fehca de publicación, la oferta de trabajo, la empresa que da la oferta,
     pais de la oferta y ciudad de la oferta
     """
-    catalog = {'Publicación': None,
-               'Oferta': None,
-               'Empresa': None,
-               'Experticia': None,
-               'País': None,
-               'Ciudad': None}
+    catalog = {'Trabajos': None,
+               'Tipos': None,
+               'Multi Locaciones': None,
+               'Habilidades': None}
     # Obtenidos de jobs.csv
-    catalog['Publicación'] = lt.newList('ARRAY_LIST')   #ESTRUCTURA DE DATO ESCOGIDA AL AZAR CAMBIAR
-    catalog['Oferta'] = lt.newList('ARRAY_LIST')
-    catalog['Empresa'] = lt.newList('ARRAY_LIST')
-    catalog['Experticia'] = lt.newList('ARRAY_LIST')
-    catalog['País'] = lt.newList('SINGLE_LINKED')
-    catalog['Ciudad'] = lt.newList('SINGLE_LINKED')
+    catalog['Trabajos'] = lt.newList('ARRAY_LIST')
     # Obtenidos de employment_types.csv
-    catalog['Tipos'] = lt.newList('SINGLE_LINKED')
+    catalog['Tipos'] = lt.newList('ARRAY_LIST')
     # Obtenidos de multilocations.csv
-    catalog['Multi Locaciones'] = lt.newList('SINGLE_LINKED')
+    catalog['Multi Locaciones'] = lt.newList('ARRAY_LIST')
     # Obtenidos de skills.csv
-    catalog['Habilidades'] = lt.newList('SINGLE_LINKED')
+    catalog['Habilidades'] = lt.newList('ARRAY_LIST')
     return catalog
 
 # Funciones para agregar informacion al modelo
-
-def addDate(catalog, row):
-    lt.addLast(catalog['Publicación'], row)
-    return catalog
-
 def addJob(catalog, row):
-    lt.addLast(catalog['Oferta'], row)
+    lt.addLast(catalog['Trabajos'], row)
     return catalog
 
-def addCompany(catalog, row):
-    lt.addLast(catalog['Empresa'], row)
+def addET(catalog,row):
+    lt.addLast(catalog['Tipos'],row) #REVISAR NOMBRE DE KEY 'TIPOS'
     return catalog
 
-def addExp(catalog, row):
-    lt.addLast(catalog['Experticia'], row)
+def addML(catalog,row):
+    lt.addLast(catalog['Multi Locaciones'], row)
     return catalog
 
-def addCountry(catalog, row):
-    lt.addLast(catalog['País'], row)
-    return catalog
-
-def addCity(catalog, row):
-    lt.addLast(catalog['Ciudad'], row)
+def addSkills(catalog, row):
+    lt.addLast(catalog['Habilidades'], row)
     return catalog
 
 # Funciones para creacion de datos
@@ -115,7 +103,7 @@ def get_data(data_structs, id):
     pass
 
 def JobSize(catalog):
-    return lt.size(catalog['Oferta'])
+    return lt.size(catalog['Trabajos'])
 
 def ETSize(catalog):
     return lt.size(catalog['Tipos'])
@@ -189,6 +177,151 @@ def req_8(data_structs):
     # TODO: Realizar el requerimiento 8
     pass
 
+def selectDataSize(algo_opt):
+    """
+    Función para escoger el tipo de archivo con el que se ejecuta el programa
+    """
+    #Rta por defecto
+    DataSize = 10
+    Sizemsg = "Se escogió por defecto la opción 10 - small"
+    
+    if algo_opt == 1:
+        DataSize = "10-por-"
+        Sizemsg = "Se ha escogido el tamaño 10-por"
+        
+    elif algo_opt == 2:
+        DataSize = "20-por-"
+        Sizemsg = "Se ha escogido el tamaño 20-por"
+
+    elif algo_opt == 3:
+        DataSize = "30-por-"
+        Sizemsg = "Se ha escogido el tamaño 30-por"
+
+    elif algo_opt == 4:
+        DataSize = "40-por-"
+        Sizemsg = "Se ha escogido el tamaño 40-por"
+        
+    elif algo_opt == 5:
+        DataSize = "50-por-"
+        Sizemsg = "Se ha escogido el tamaño 50-por"
+        
+    elif algo_opt == 6:
+        DataSize = "60-por-"
+        Sizemsg = "Se ha escogido el tamaño 60-por"
+        
+    elif algo_opt == 7:
+        DataSize = "70-por-"
+        Sizemsg = "Se ha escogido el tamaño 70-por"
+        
+    elif algo_opt == 8:
+        DataSize = "80-por-"
+        Sizemsg = "Se ha escogido el tamaño 80-por"
+        
+    elif algo_opt == 9:
+        DataSize = "90-por-"
+        Sizemsg = "Se ha escogido el tamaño 90-por"
+        
+    elif algo_opt == 10:
+        DataSize = "small-"
+        Sizemsg = "Se ha escogido el tamaño small-"
+        
+    elif algo_opt == 11:
+        DataSize = "meidum-"
+        Sizemsg = "Se ha escogido el tamaño medium-"
+        
+    elif algo_opt == 12:
+        DataSize = "large-"
+        Sizemsg = "Se ha escogido el tamaño large-"
+    return DataSize, Sizemsg
+    
+def selectSortAlgorithm(algo_opt):
+    """selectSortAlgorithm permite seleccionar el algoritmo de ordenamiento
+    para la lista de pokemon.
+
+    Args:
+        algo_opt (int): opcion de algoritmo de ordenamiento, las opciones son:
+            1: Selection Sort
+            2: Insertion Sort
+            3: Shell Sort
+            4: Merge Sort
+            5: Quick Sort
+            6: Heap Sort
+            7: Bogo Sort
+            8: Custom Sort (timsort o bucketsort)
+
+    Returns:
+        list: sort_algorithm (sort) la instancia del ordenamiento y
+        algo_msg (str) el texto que describe la configuracion del ordenamiento
+    """
+    # respuestas por defecto
+    sort_algorithm = 8
+    algo_msg = "El algoritmo por defecto es TimSort"
+
+    # selecciona el algoritmo de ordenamiento
+    # opcion 1: Selection Sort
+    if algo_opt == 1:
+        sort_algorithm = ses
+        algo_msg = "Seleccionó la configuración - Selection Sort"
+
+    # opcion 2: Insertion Sort
+    elif algo_opt == 2:
+        sort_algorithm = ins
+        algo_msg = "Seleccionó la configuración - Insertion Sort"
+
+    # opcion 3: Shell Sort
+    elif algo_opt == 3:
+        sort_algorithm = shs
+        algo_msg = "Seleccionó la configuración - Shell Sort"
+
+    # opcion 4: Merge Sort
+    elif algo_opt == 4:
+        sort_algorithm = mes
+        algo_msg = "Seleccionó la configuración - Merge Sort"
+
+    # opcion 5: Quick Sort
+    elif algo_opt == 5:
+        sort_algorithm = qus
+        algo_msg = "Seleccionó la configuración - Quick Sort"
+
+    # opcion 6: Heap Sort
+    elif algo_opt == 6:
+        sort_algorithm = hes
+        algo_msg = "Seleccionó la configuración - Heap Sort"
+
+    # opcion 7: Bogo Sort
+    elif algo_opt == 7:
+        sort_algorithm = bos
+        algo_msg = "Seleccionó la configuración - Bogo Sort"
+
+    # opcion 8: Custom Sort, timsort o bucketsort
+    elif algo_opt == 8:
+        sort_algorithm = cus
+        algo_msg = "Seleccionó la configuración - TimSort"
+    # respuesta final: algoritmo de ordenamiento y texto de configuracion
+    return sort_algorithm, algo_msg
+
+def selectEDType(catalog, EDOp):
+    """
+    Función para escoger el tipo de archivo con el que se ejecuta el programa
+    """
+    #Rta por defecto
+    EDType = 'SINGLE_LINKED'
+    EDmsg = "Se escogió por defecto la opción 2 - SINGLE LINKED LIST"
+    
+    if EDOp == 1:
+        EDType = 'ARRAY_LIST'
+        EDmsg = "Se ha escogido: ARRAY LIST"
+        
+    elif EDOp == 2:
+        EDType = 'SINGLE_LINKED'
+        EDmsg = "Se ha escogido: SINGLE LINKED LIST"
+    
+    catalog['Trabajos'] = lt.newList(EDType)
+    catalog['Tipos'] = lt.newList(EDType)
+    catalog['Multi Locaciones'] = lt.newList(EDType)
+    catalog['Habilidades'] = lt.newList(EDType)
+    
+    return EDmsg
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -198,9 +331,29 @@ def compare(data_1, data_2):
     """
     #TODO: Crear función comparadora de la lista
     pass
-
+def cmp_ofertas_by_empresa_y_fecha (oferta1, oferta2):     
+    """     Devuelve verdadero (True) si la empresa de la oferta1 es menor que en la oferta2,     
+    en caso de que sean iguales se analiza la fecha de publicación de la oferta laboral,     
+    de lo contrario devuelva falso (False).     
+    Args:         
+    oferta1: información de la primera oferta laboral que incluye          "company_name" y "published_at"         
+    oferta1: información de la segunda oferta laboral que incluye          "company_name" y "published_at"  
+    """
+    if (oferta1["company_name"] < oferta2["company_name"]):
+        return True
+    elif (oferta1["company_name"] == oferta2["company_name"]):
+         
+        if (date.strptime(oferta1["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") < date.strptime(oferta2["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ")):
+            return True
+        else: return False
+    else: return False       
+        
 # Funciones de ordenamiento
 
+def sortJobs(catalog):
+    sorted_jobs = catalog["Trabajos"]
+    sorted_jobs = sort_algorithm.sort(sorted_jobs, cmp_ofertas_by_empresa_y_fecha)
+    return sorted_jobs 
 
 def sort_criteria(data_1, data_2):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
@@ -223,18 +376,30 @@ def sort(data_structs):
     #TODO: Crear función de ordenamiento
     pass
 
-def printTable(catalog, num):
+def printTableJobs(catalog, num):
     num += 1
-    table = []
+    table1 = []
+    table2 = []
     header = ['Oferta','Empresa','Experticia','Publicación','País','Ciudad']
-    table.append(header)
+    table1.append(header)
+    table2.append(header)
+    jobs1 = lt.subList(catalog['Trabajos'], 1, num)
+    jobs2 = lt.subList(catalog['Trabajos'], lt.size(catalog['Trabajos'])-num, num)
 
-    for i in range(1,num+1):
-        table.append([lt.getElement(catalog['Oferta'],i),
-                        lt.getElement(catalog['Empresa'],i),
-                        lt.getElement(catalog['Experticia'],i),
-                        lt.getElement(catalog['Publicación'],i),
-                        lt.getElement(catalog['País'],i),
-                        lt.getElement(catalog['Ciudad'],i)])
-    
-    return table
+    for job in lt.iterator(jobs1):
+        table1.append([job['title'],
+        job['company_name'],
+        job['experience_level'],
+        job['published_at'],
+        job['country_code'],
+        job['city']])
+
+    for job in lt.iterator(jobs2):
+        table2.append([job['title'],
+        job['company_name'],
+        job['experience_level'],
+        job['published_at'],
+        job['country_code'],
+        job['city']])
+        
+    return table1, table2

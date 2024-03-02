@@ -24,13 +24,14 @@ import config as cf
 import model
 import time
 import csv
+import datetime as date
 
 csv.field_size_limit(2147483647)
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
-
+Route = None
 
 def newController():
     """
@@ -55,7 +56,7 @@ def loadData(control):
     empType = loadEmploymentTypes(catalog)
     multiLoc = loadMultiLocations(catalog)
     skills = loadSkills(catalog)
-    
+    # TODO INCLUIR FUNCION PARA TRANSFORMAR TODAS LAS FECHAS Y CAMBIAR FUNCION DE COMPARACION AL IMPLEMENTAR
     return jobs, empType, multiLoc, skills
 
 
@@ -63,17 +64,10 @@ def loadJobs(catalog):
     """
     Carga csv jobs
     """
-    datefile = cf.data_dir + 'data/small-jobs.csv'
-    input_file = csv.DictReader(open(datefile, encoding='utf-8'), restval= 'Desconocido')
+    datefile = cf.data_dir + Route + 'jobs.csv'
+    input_file = csv.DictReader(open(datefile, encoding='utf-8'), restval= 'Desconocido', delimiter= ";")
     for row in input_file:
-        
-        model.addDate(catalog, row['published_at'])    
-        model.addJob(catalog, row['title'])   
-        model.addCompany(catalog, row['company_name'])
-        model.addExp(catalog, row['experience_level'])
-        model.addCountry(catalog, row['country_code'])
-        model.addCity(catalog, row['city'])
-        
+        model.addJob(catalog,row)
     return model.JobSize(catalog)
 
 # Falta extrar info de las filas y añadirlas al catalogo general
@@ -81,30 +75,77 @@ def loadEmploymentTypes(catalog):
     """
     Carga csv employment_types
     """
-    tagsfile = cf.data_dir + 'data/small-employments_types.csv'
+    tagsfile = cf.data_dir + 'small-employments_types.csv'
     input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    for row in input_file:  
+        model.addET(catalog, row)
     return model.ETSize(catalog)
 
 def loadMultiLocations(catalog):
     """
     Carga csv multilocations
     """
-    tagsfile = cf.data_dir + 'data/small-multilocations.csv'
+    tagsfile = cf.data_dir + 'small-multilocations.csv'
     input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    for row in input_file:
+        model.addML(catalog,row)
     return model.MLSize(catalog)
 
 def loadSkills(catalog):
     """
     Carga csv skills
     """
-    tagsfile = cf.data_dir + 'data/small-skills.csv'
+    tagsfile = cf.data_dir + 'small-skills.csv'
     input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    for row in input_file:
+        model.addSkills(catalog,row)
     return model.SkillSize(catalog)
 
-def loadTable(control, num):
+def loadTableJobs(control, num):
     catalog = control['model']
-    return model.printTable(catalog,num)
+    return model.printTableJobs(catalog,num)
+
+def setDataSize(SizeOp):
+    """
+    Configura que csv se utilizara para la carga de datos
+    """
+    ans = model.selectDataSize(SizeOp)
+    DataSize = ans[0]
+    data_msg = ans[1]
+    return data_msg, DataSize
+
+def setEDType(control, EDOp):
+    """
+    Configura que csv se utilizara para la carga de datos
+    """
+    catalog = control['model']
+    EDmsg = model.selectEDType(catalog, EDOp)
+    return EDmsg
+
+def setSortAlgorithm(algo_opt):
+    """
+    Configura el algoritmo de ordenamiento que se va a utilizar en el
+    modelo y retorna un mensaje que informa al usuario.
+    """
+    # TODO nuevo del lab 5 (Parte 2)
+    ans = model.selectSortAlgorithm(algo_opt)
+    # TODO mirar ojo!!!!
+    algorithm = ans[0]
+    model.sort_algorithm = algorithm
+    algoritm_msg = ans[1]
+    return algoritm_msg
+
 # Funciones de ordenamiento
+def sortJobs(control):
+    """
+    Ordena las ofertas por empresa y si es igual, por fecha. Se calcula el tiempo de ordenamiento
+    """
+    # TODO incluir resutlado en la toma de tiempos (Parte 1).
+    start_time = get_time()
+    sorted_books = model.sortJobs(control["model"])
+    end_time = get_time()
+    delta = delta_time(start_time, end_time)
+    return sorted_books, delta
 
 def sort(control):
     """
