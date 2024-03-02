@@ -57,6 +57,8 @@ def print_menu():
     print("7- Ejecutar Requerimiento 6")
     print("8- Ejecutar Requerimiento 7")
     print("9- Ejecutar Requerimiento 8")
+    print("10- Escoger algoritmo de ordenamiento")
+    print("11- Ordenar datos")
     print("0- Salir")
 
 
@@ -138,9 +140,68 @@ def print_req_8(control):
     # TODO: Imprimir el resultado del requerimiento 8
     pass
 
-
+    
+def printSortResults(sort_jobs, sample):     # TODO completar funcion para imprimir resultados sort lab 5     
+    size = lt.size(sort_jobs)     
+    if size <= sample*2:         
+        print("Las", size, "ofertas ordenadas son:")         
+        for job in lt.iterator(sort_jobs):             
+            print('Oferta: ' + job['title'] + ' Empresa: ' + job['company_name'] + 
+                  ' Experticia: ' + job['experience_level'] + 
+                    ' Publicación: ' + job['published_at'] + ' País: '+ job['country_code'] + ' Ciudad: ' + job['city'])      
+    else:    
+             
+        print("Las", sample, "primeras ofertas ordenadas son:")         
+        i = 1
+                 
+        while i <= sample:             
+            job = lt.getElement(sort_jobs, i)             
+            print('Oferta: ' + job['title'] + ' Empresa: ' + job['company_name'] + 
+                  ' Experticia: ' + job['experience_level'] + 
+                    ' Publicación: ' + job['published_at'] + ' País: '+ job['country_code'] + ' Ciudad: ' + job['city'])             
+            i += 1  
+            
+        print("Las", sample, "últimas ofertas ordenadas son:")         
+        i = size - sample + 1        
+        
+        while i <= size:            
+            job = lt.getElement(sort_jobs, i)           
+            print('Oferta: ' + job['title'] + ' Empresa: ' + job['company_name'] + 
+                  ' Experticia: ' + job['experience_level'] + 
+                    ' Publicación: ' + job['published_at'] + ' País: '+ job['country_code'] + ' Ciudad: ' + job['city'])             
+            i += 1 
 # Se crea el controlador asociado a la vista
 control = newController()
+# Variables utiles para el programa
+EDOPStr = """Seleccione el tipo de estructura para guardar los datos:
+                1. ARRAY LIST
+                2. SINGLE LINKED LIST
+"""
+SizeOpStr = """Seleccione el tamaño de CSV a cargar:
+                 1. 10-por ||
+                 2. 20-por ||
+                 3. 30-por ||
+                 4. 40-por ||
+                 5. 50-por ||
+                 6. 60-por ||
+                 7. 70-por ||
+                 8. 80-por ||
+                 9. 90-por ||
+                 10. small ||
+                 11. medium||
+                 12. large ||
+                 """
+                 
+SortOp = """Seleccione el algoritmo de ordenamiento:
+                1. Selection Sort ||
+                 2. Insertion Sort ||
+                 3. Shell Sort ||
+                 4. Merge Sort ||
+                 5. Quick Sort ||
+                 6. Heap Sort ||
+                 7. Bogo Sort ||
+                 8. TimSort (custom):"""
+
 
 # main del reto
 if __name__ == "__main__":
@@ -153,14 +214,35 @@ if __name__ == "__main__":
         print_menu()
         inputs = input('Seleccione una opción para continuar\n')
         if int(inputs) == 1:
+            # Definir el tipo de ED donde se cargan los archivos
+            print('Como desea guardar los datos?\n')
+            EDOp = input(EDOPStr)
+            EDOp = int(EDOp)
+            EDmsg = controller.setEDType(control, EDOp)
+            print(EDmsg)
+            
+            # Definir que archivos csv se van a utilizar para cargar datos
+            print("Que datos desea cargar?\n")
+            SizeOp = input(SizeOpStr)
+            SizeOp = int(SizeOp)
+            Sizemsg, DataSize = controller.setDataSize(SizeOp)      
+            controller.Route = DataSize    
+            print(Sizemsg) 
+            
+            # Presenta la cantidad de datos cargados
             print("Cargando información de los archivos ....\n")
             jobs, empType, multiLoc, skills = loadData(control)
             print('Ofertas cargadas: '+ str(jobs))
             print('Tipos de empleos cargados '+ str(empType))
             print('Multilocaciones cargadas '+ str(multiLoc))
             print('Habilidades cargadas '+ str(skills))
-            table = controller.loadTable(control, 3)
-            print(tabulate(table))
+            
+            num = input('Cuantas ofertas desea visualizar ')
+            table1, table2 = controller.loadTableJobs(control, int(num)-1)
+            print('Primeras ' + str(num) + " Ofertas")
+            print(tabulate(table1))
+            print('Ultimas ' + str(num) + " Ofertas")
+            print(tabulate(table2))
             
         elif int(inputs) == 2:
             print_req_1(control)
@@ -185,6 +267,23 @@ if __name__ == "__main__":
 
         elif int(inputs) == 9:
             print_req_8(control)
+        
+        elif int(inputs) == 10:
+            algo_opt = input(SortOp)
+            algo_opt = int(algo_opt)
+            algo_msg = controller.setSortAlgorithm(algo_opt)
+            print(algo_msg)
+        
+        elif int(inputs) == 11:
+            print("Ordenando las ofertas ....")         
+            result = controller.sortJobs(control)         
+            sortedJobs = result[0]         
+            DeltaTime = f"{result[1]:.3f}"         
+            print("Para", jobs, "elementos, el tiempo es:",               
+              str(DeltaTime), "[ms]")         
+            sample = input("Cuantas ofertas desea visualizar?\n")
+            printSortResults(sortedJobs, int(sample))
+
 
         elif int(inputs) == 0:
             working = False
@@ -192,3 +291,6 @@ if __name__ == "__main__":
         else:
             print("Opción errónea, vuelva a elegir.\n")
     sys.exit(0)
+    
+    
+
