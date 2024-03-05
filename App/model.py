@@ -340,9 +340,7 @@ def cmp_ofertas_by_empresa_y_fecha (oferta1, oferta2):
     oferta1: información de la segunda oferta laboral que incluye          "company_name" y "published_at"  
     """
     if (oferta1["company_name"] < oferta2["company_name"]):
-        if (date.strptime(oferta1["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") < date.strptime(oferta2["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ")):
-            return True
-        else: return False
+        return True
     elif (oferta1["company_name"] == oferta2["company_name"]):
          
         if (date.strptime(oferta1["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") < date.strptime(oferta2["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ")):
