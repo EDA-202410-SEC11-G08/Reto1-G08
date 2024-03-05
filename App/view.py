@@ -193,8 +193,7 @@ SizeOpStr = """Seleccione el tamaño de CSV a cargar:
                  10. small ||
                  11. medium||
                  12. large ||
-                 """
-                 
+                 """            
 SortOp = """Seleccione el algoritmo de ordenamiento:
                 1. Selection Sort ||
                  2. Insertion Sort ||
@@ -204,7 +203,6 @@ SortOp = """Seleccione el algoritmo de ordenamiento:
                  6. Heap Sort ||
                  7. Bogo Sort ||
                  8. TimSort (custom):"""
-
 
 # main del reto
 if __name__ == "__main__":
@@ -278,6 +276,14 @@ if __name__ == "__main__":
             print(algo_msg)
         
         elif int(inputs) == 11:
+            
+            size = input("Que porcentaje de datos desea ver?")
+            size = int(size)
+            ans = controller.setJobSublist(control, size)
+            control = ans[0]
+            Percmsg = ans[1]
+            print(Percmsg)
+            
             print("Ordenando las ofertas ....")         
             result = controller.sortJobs(control)         
             sortedJobs = result[0]         

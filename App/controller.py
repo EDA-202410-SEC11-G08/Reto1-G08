@@ -101,7 +101,7 @@ def loadSkills(catalog):
         model.addSkills(catalog,row)
     return model.SkillSize(catalog)
 
-def loadTableJobs(control, num):
+def     loadTableJobs(control, num):
     catalog = control['model']
     return model.printTableJobs(catalog,num)
 
@@ -140,12 +140,22 @@ def sortJobs(control):
     """
     Ordena las ofertas por empresa y si es igual, por fecha. Se calcula el tiempo de ordenamiento
     """
-    # TODO incluir resutlado en la toma de tiempos (Parte 1).
+    # incluir resutlado en la toma de tiempos
     start_time = get_time()
     sorted_books = model.sortJobs(control["model"])
     end_time = get_time()
     delta = delta_time(start_time, end_time)
     return sorted_books, delta
+
+def setJobSublist(control, size):
+    """
+    Retorna una sublista de trabajos
+    """
+    catalog = control["model"]
+    ans = model.setJobSublist(catalog, size)
+    control["model"] = ans[0]
+    Percmsg = ans[1]
+    return control, Percmsg
 
 def sort(control):
     """

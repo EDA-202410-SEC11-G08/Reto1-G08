@@ -340,7 +340,9 @@ def cmp_ofertas_by_empresa_y_fecha (oferta1, oferta2):
     oferta1: información de la segunda oferta laboral que incluye          "company_name" y "published_at"  
     """
     if (oferta1["company_name"] < oferta2["company_name"]):
-        return True
+        if (date.strptime(oferta1["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") < date.strptime(oferta2["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ")):
+            return True
+        else: return False
     elif (oferta1["company_name"] == oferta2["company_name"]):
          
         if (date.strptime(oferta1["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") < date.strptime(oferta2["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ")):
@@ -350,8 +352,24 @@ def cmp_ofertas_by_empresa_y_fecha (oferta1, oferta2):
         
 # Funciones de ordenamiento
 
+def setJobSublist(catalog, size):
+    """
+    Crea una sublista de trabajos del porcentaje indicado
+    """
+    jobs = catalog["Trabajos"]
+
+    if (float(size) <= 100) and (float(size) > 0):
+        PercSize = round(lt.size(jobs)*float(size)/100 + 0.5)
+        Percmsg = 'Se ha escogido', size,'%, ' + str(PercSize) + ' datos'
+    else: 
+        Percmsg = 'Se escogió 100% por defecto'
+        PercSize = 100
+        
+    catalog["Trabajos sublist"] = lt.subList(jobs, 1, PercSize)
+    return catalog, Percmsg
+
 def sortJobs(catalog):
-    sorted_jobs = catalog["Trabajos"]
+    sorted_jobs = catalog["Trabajos sublist"]
     sorted_jobs = sort_algorithm.sort(sorted_jobs, cmp_ofertas_by_empresa_y_fecha)
     return sorted_jobs 
 
