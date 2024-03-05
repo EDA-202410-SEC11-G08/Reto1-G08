@@ -101,7 +101,7 @@ def loadSkills(catalog):
         model.addSkills(catalog,row)
     return model.SkillSize(catalog)
 
-def     loadTableJobs(control, num):
+def loadTableJobs(control, num):
     catalog = control['model']
     return model.printTableJobs(catalog,num)
 

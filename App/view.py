@@ -143,36 +143,37 @@ def print_req_8(control):
     # TODO: Imprimir el resultado del requerimiento 8
     pass
 
-    
-def printSortResults(sort_jobs, sample):     # TODO completar funcion para imprimir resultados sort lab 5     
-    size = lt.size(sort_jobs)     
-    if size <= sample*2:         
-        print("Las", size, "ofertas ordenadas son:")         
-        for job in lt.iterator(sort_jobs):             
-            print('Oferta: ' + job['title'] + ' Empresa: ' + job['company_name'] + 
-                  ' Experticia: ' + job['experience_level'] + 
-                    ' Publicación: ' + job['published_at'] + ' País: '+ job['country_code'] + ' Ciudad: ' + job['city'])      
-    else:    
-             
-        print("Las", sample, "primeras ofertas ordenadas son:")         
-        i = 1
-                 
-        while i <= sample:             
-            job = lt.getElement(sort_jobs, i)             
-            print('Oferta: ' + job['title'] + ' Empresa: ' + job['company_name'] + 
-                  ' Experticia: ' + job['experience_level'] + 
-                    ' Publicación: ' + job['published_at'] + ' País: '+ job['country_code'] + ' Ciudad: ' + job['city'])             
-            i += 1  
-            
-        print("Las", sample, "últimas ofertas ordenadas son:")         
-        i = size - sample + 1        
+
+def printTableJobs(list, num):
+    num += 1
+    table1 = []
+    table2 = []
+    header = ['Oferta','Empresa','Experticia','Publicación','País','Ciudad']
+    table1.append(header)
+    table2.append(header)
+    jobs1 = lt.subList(list, 1, num)
+    jobs2 = lt.subList(list, lt.size(list)-num, num)
+
+    for job in lt.iterator(jobs1):
+        table1.append([job['title'],
+        job['company_name'],
+        job['experience_level'],
+        job['published_at'],
+        job['country_code'],
+        job['city']])
+
+    for job in lt.iterator(jobs2):
+        table2.append([job['title'],
+        job['company_name'],
+        job['experience_level'],
+        job['published_at'],
+        job['country_code'],
+        job['city']])
         
-        while i <= size:            
-            job = lt.getElement(sort_jobs, i)           
-            print('Oferta: ' + job['title'] + ' Empresa: ' + job['company_name'] + 
-                  ' Experticia: ' + job['experience_level'] + 
-                    ' Publicación: ' + job['published_at'] + ' País: '+ job['country_code'] + ' Ciudad: ' + job['city'])             
-            i += 1 
+    return table1, table2
+    
+
+    
 # Se crea el controlador asociado a la vista
 control = newController()
 # Variables utiles para el programa
@@ -239,7 +240,7 @@ if __name__ == "__main__":
             print('Habilidades cargadas '+ str(skills))
             
             num = input('Cuantas ofertas desea visualizar ')
-            table1, table2 = controller.loadTableJobs(control, int(num)-1)
+            table1, table2 = printTableJobs(control["model"]["Trabajos"], int(num)-1)
             print('Primeras ' + str(num) + " Ofertas")
             print(tabulate(table1))
             print('Ultimas ' + str(num) + " Ofertas")
@@ -289,9 +290,14 @@ if __name__ == "__main__":
             sortedJobs = result[0]         
             DeltaTime = f"{result[1]:.3f}"         
             print("Para", jobs, "elementos, el tiempo es:",               
-              str(DeltaTime), "[ms]")         
-            sample = input("Cuantas ofertas desea visualizar?\n")
-            printSortResults(sortedJobs, int(sample))
+              str(DeltaTime), "[ms]")        
+             
+            num = input('Cuantas ofertas desea visualizar ')
+            table1, table2 = printTableJobs(sortedJobs, int(num)-1)             
+            print('Primeras ' + str(num) + " Ofertas")
+            print(tabulate(table1))
+            print('Ultimas ' + str(num) + " Ofertas")
+            print(tabulate(table2))
 
 
         elif int(inputs) == 0:
