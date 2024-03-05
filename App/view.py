@@ -294,8 +294,3 @@ if __name__ == "__main__":
         else:
             print("Opción errónea, vuelva a elegir.\n")
     sys.exit(0)
-if __name__ == "__main__":     
-    threading.stack_size(67108864*2)  # 128MB stack     
-    sys.setrecursionlimit(default_limit*1000000)     
-    thread = threading.Thread(target=menu_cycle)     
-    thread.start()
