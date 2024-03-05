@@ -289,7 +289,7 @@ if __name__ == "__main__":
             result = controller.sortJobs(control)         
             sortedJobs = result[0]         
             DeltaTime = f"{result[1]:.3f}"         
-            print("Para", jobs, "elementos, el tiempo es:",               
+            print("Para", lt.size(sortedJobs), "elementos, el tiempo es:",               
               str(DeltaTime), "[ms]")        
              
             num = input('Cuantas ofertas desea visualizar ')
