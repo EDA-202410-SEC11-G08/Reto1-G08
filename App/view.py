@@ -279,7 +279,7 @@ if __name__ == "__main__":
         elif int(inputs) == 11:
             
             size = input("Que porcentaje de datos desea ver?")
-            size = int(size)
+            size = float(size)
             ans = controller.setJobSublist(control, size)
             control = ans[0]
             Percmsg = ans[1]
