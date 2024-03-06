@@ -226,7 +226,7 @@ def selectDataSize(algo_opt):
         Sizemsg = "Se ha escogido el tamaño small-"
         
     elif algo_opt == 11:
-        DataSize = "meidum-"
+        DataSize = "medium-"
         Sizemsg = "Se ha escogido el tamaño medium-"
         
     elif algo_opt == 12:
