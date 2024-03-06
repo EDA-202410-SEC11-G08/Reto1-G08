@@ -175,21 +175,35 @@ def get_data(control, id):
     pass
 
 
-def req_1(control):
+def setCountryExperience(control, pais, experiencia): # Requerimiento 1
     """
     Retorna el resultado del requerimiento 1
+    Ingresar catalogo, pais, experiencia
     """
+    jobs = control["model"]
+    start_time = get_time() #INICIAR TIEMPO RQ1
+    ans = model.sortCountryExperience(jobs, pais, experiencia)
+    end_time = get_time() #TERMINAR TIEMPO RQ1
+    control["model"] = ans[0]
+    size = ans[1] 
+    delta = delta_time(start_time, end_time) #OBTENER TIEMPO FILTRADO Y    
     # TODO: Modificar el requerimiento 1
-    pass
+    return control, size, delta
 
-
-def req_2(control):
+def setCompanyCity(control, empresa, ciudad):
     """
     Retorna el resultado del requerimiento 2
+    Ingresar catalogo, empresa y ciudad
     """
     # TODO: Modificar el requerimiento 2
-    pass
-
+    jobs = control["model"]
+    start_time = get_time() #INICIAR TIEMPO RQ1
+    ans = model.sortCompanyCity(jobs, empresa, ciudad)
+    end_time = get_time() #TERMINAR TIEMPO RQ1
+    control["model"] = ans[0]
+    size = ans[1] 
+    delta = delta_time(start_time, end_time) #OBTENER TIEMPO FILTRADO Y    
+    return control, size, delta
 
 def req_3(control):
     """
@@ -207,12 +221,22 @@ def req_4(control):
     pass
 
 
-def req_5(control):
+def setCityDate(control, ciudad, fecha1, fecha2):
     """
     Retorna el resultado del requerimiento 5
+    Ingresar catalogo, ciudad a investigar, fecha inicial (1) y fecha final (2)
     """
     # TODO: Modificar el requerimiento 5
-    pass
+    jobs = control["model"]
+    start_time = get_time() #INICIAR TIEMPO RQ5
+    ans = model.sortCityDate(jobs, ciudad, fecha1, fecha2)
+    end_time = get_time() #TERMINAR TIEMPO RQ5
+    control["model"] = ans[0]
+    size = ans[1] 
+    max, min = ans[2], ans[3]
+    delta = delta_time(start_time, end_time) #OBTENER TIEMPO FILTRADO Y   
+     
+    return control, size, delta, max, min
 
 def req_6(control):
     """

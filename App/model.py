@@ -44,7 +44,7 @@ assert cf
 Se define la estructura de un catálogo de videos. El catálogo tendrá
 dos listas, una para los videos, otra para las categorias de los mismos.
 """
-sort_algorithm = None
+sort_algorithm = cus #SE SELECCIONA TIMSORT COMO ALGORITMO POR DEFECTO
 # Construccion de modelos
 
 def newCatalog():
@@ -114,21 +114,45 @@ def MLSize(catalog):
 def SkillSize(catalog):
     return lt.size(catalog['Habilidades'])
 
-def req_1(data_structs):
+def sortCountryExperience(catalog, pais, experiencia): # REQUERIMIENTO 1
     """
     Función que soluciona el requerimiento 1
+    Ingresar catalogo
+    Ingresar codigo de país
+    Ingresar experiencia
+    
+    Lista con todos los trabajos de ese país y experiencia, la cantidad de visualización se resuelve 
+    en la impresión de datos
+    
     """
     # TODO: Realizar el requerimiento 1
-    pass
+    jobs = catalog["Trabajos"]
+    jobsf = lt.newList("ARRAY_LIST")
+    for job in lt.iterator(jobs): #Revisar cada oferta de trabajo
+        if (cmp_pais_experiencia(job, pais, experiencia) == True):
+            lt.addLast(jobsf, job) #Añadir a la nueva lista filtrada si coincide con los criterios
+    jobsfsize = lt.size(jobsf)
+    if jobsfsize != 0:
+        jobsf = sort_algorithm.sort(jobsf, cmp_fecha_publicacion)
+        catalog['REQ1'] = jobsf
+    return catalog, jobsfsize  
+    
 
-
-def req_2(data_structs):
+def sortCompanyCity(catalog, empresa, ciudad): # REQUERIMIENTO 2
     """
     Función que soluciona el requerimiento 2
     """
     # TODO: Realizar el requerimiento 2
-    pass
-
+    jobs = catalog["Trabajos"]
+    jobsf = lt.newList("ARRAY_LIST")
+    for job in lt.iterator(jobs): #Revisar cada oferta de trabajo
+        if (cmp_ciudad_empresa(job, empresa, ciudad) == True):
+            lt.addLast(jobsf, job) #Añadir a la nueva lista filtrada si coincide con los criterios
+    jobsfsize = lt.size(jobsf)
+    if jobsfsize != 0:
+        jobsf = sort_algorithm.sort(jobsf, cmp_fecha_publicacion)
+        catalog['REQ2'] = jobsf
+    return catalog, jobsfsize 
 
 def req_3(data_structs):
     """
@@ -146,12 +170,47 @@ def req_4(data_structs):
     pass
 
 
-def req_5(data_structs):
+def sortCityDate(catalog, ciudad, fecha1, fecha2):
     """
     Función que soluciona el requerimiento 5
     """
     # TODO: Realizar el requerimiento 5
-    pass
+    jobs = catalog["Trabajos"]
+    jobsf = lt.newList('ARRAY_LIST')
+    empresas = {} #Diccionario con nombre de empresa y # de ofertas
+    ofertasmax = 0
+    empresamax = None
+    empresamin = None
+    
+    for job in lt.iterator(jobs): #Revisar cada oferta de trabajo
+        if  (cmp_ciudad_fecha(job, ciudad, fecha1, fecha2) == True): 
+            lt.addLast(jobsf, job) #Añadir a la nueva lista filtrada si coincide con los criterios
+            
+            if job['company_name'] in empresas: #Contador de ofertas por empresa para saber maximo y minimo
+                empresas[job['company_name']] += 1 
+                if ofertasmax < empresas[job['company_name']]: #Identificar maximo 
+                    ofertasmax = empresas[job['company_name']]
+                    empresamax = job['company_name']                    
+            else:
+                empresas[job['company_name']] = 1
+    
+    for empresa in empresas: # INCLUIR DENTRO DE 1 CICLO FOR NO 2
+        if empresas[empresa] <= ofertasmax:
+            ofertasmin = empresas[empresa]
+            empresamin = empresa
+    
+    max = (empresamax, ofertasmax)
+    if lt.size(jobsf) == 1:
+        min = max
+    else:
+        min = (empresamin, ofertasmin)
+    
+    jobsfsize = lt.size(jobsf)
+    if jobsfsize != 0:
+        jobsf = sort_algorithm.sort(jobsf, cmp_fecha_empresa)
+        catalog['REQ5'] = jobsf
+        
+    return catalog, jobsfsize, max, min
 
 
 def req_6(data_structs):
@@ -346,8 +405,41 @@ def cmp_ofertas_by_empresa_y_fecha (oferta1, oferta2):
             return True
         else: return False
     else: return False       
-        
-# Funciones de ordenamiento
+    
+def cmp_pais_experiencia (oferta, pais, experiencia): #Criterio de filtrado REQUERIMIENTO 1
+    """ Devuelve verdadero (True) si la empresa de la oferta pertenece al país y experiencia seleccionados
+        """
+    if (oferta["country_code"] == pais) and (oferta["experience_level"] == experiencia):
+        return True
+    else: return False
+    
+def cmp_fecha_publicacion(oferta1, oferta2): #Criterio de ordenamiento de RQ 1 - Fecha de menor a mayor (mas viejo a nuevo)
+    if (date.strptime(oferta1["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") < date.strptime(oferta2["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ")):
+        return True
+    else: return False
+
+def cmp_ciudad_empresa(oferta, empresa, ciudad ): #Criterio de filtrado RQ2
+    if (oferta['city'] == ciudad) and (oferta['company_name'] == empresa):
+        return True
+    else: return False
+    
+def cmp_ciudad_fecha(oferta, ciudad, fecha1, fecha2): #Criterio de filtrado de RQ 5
+    if ((oferta['city'] == ciudad) 
+        and (date.strptime(oferta["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") >= date.strptime(fecha1,"%Y-%m-%d"))
+        and (date.strptime(oferta["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") <= date.strptime(fecha2,"%Y-%m-%d"))):
+        return True
+    else: return False
+
+def cmp_fecha_empresa(oferta1, oferta2): #Criterio ordenamiento RQ 5 - Fecha menor a mayor, si igual, nombre de empresa de A-Z
+    if (date.strptime(oferta1["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") < date.strptime(oferta2["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ")):
+        return True
+    elif (date.strptime(oferta1["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") == date.strptime(oferta2["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ")):
+        if (oferta1["company_name"] < oferta2["company_name"]):
+            return True
+        else: return False
+    else: return False
+
+ # Funciones de ordenamiento
 
 def setJobSublist(catalog, size):
     """
@@ -355,12 +447,12 @@ def setJobSublist(catalog, size):
     """
     jobs = catalog["Trabajos"]
 
-    if (float(size) <= 100) and (float(size) > 0):
+    if (float(size) < 100) and (float(size) > 0):
         PercSize = round(lt.size(jobs)*float(size)/100 + 0.5)
         Percmsg = 'Se ha escogido', size,'%, ' + str(PercSize) + ' datos'
     else: 
         Percmsg = 'Se escogió 100% por defecto'
-        PercSize = 100
+        PercSize = lt.size(jobs)
         
     catalog["Trabajos sublist"] = lt.subList(jobs, 1, PercSize)
     return catalog, Percmsg
@@ -390,31 +482,3 @@ def sort(data_structs):
     """
     #TODO: Crear función de ordenamiento
     pass
-
-def printTableJobs(catalog, num):
-    num += 1
-    table1 = []
-    table2 = []
-    header = ['Oferta','Empresa','Experticia','Publicación','País','Ciudad']
-    table1.append(header)
-    table2.append(header)
-    jobs1 = lt.subList(catalog['Trabajos'], 1, num)
-    jobs2 = lt.subList(catalog['Trabajos'], lt.size(catalog['Trabajos'])-num, num)
-
-    for job in lt.iterator(jobs1):
-        table1.append([job['title'],
-        job['company_name'],
-        job['experience_level'],
-        job['published_at'],
-        job['country_code'],
-        job['city']])
-
-    for job in lt.iterator(jobs2):
-        table2.append([job['title'],
-        job['company_name'],
-        job['experience_level'],
-        job['published_at'],
-        job['country_code'],
-        job['city']])
-        
-    return table1, table2
