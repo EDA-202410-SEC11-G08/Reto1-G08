@@ -142,10 +142,10 @@ def sortJobs(control):
     """
     # incluir resutlado en la toma de tiempos
     start_time = get_time()
-    sorted_books = model.sortJobs(control["model"])
+    sorted_jobs = model.sortJobs(control["model"])
     end_time = get_time()
     delta = delta_time(start_time, end_time)
-    return sorted_books, delta
+    return sorted_jobs, delta
 
 def setJobSublist(control, size):
     """
