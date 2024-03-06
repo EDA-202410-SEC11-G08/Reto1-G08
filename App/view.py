@@ -60,6 +60,7 @@ def print_menu():
     print("7- Ejecutar Requerimiento 6")
     print("8- Ejecutar Requerimiento 7")
     print("9- Ejecutar Requerimiento 8")
+    print("Funciones para Lab 5")
     print("10- Escoger algoritmo de ordenamiento")
     print("11- Ordenar datos")
     print("0- Salir")
@@ -80,20 +81,51 @@ def print_data(control, id):
     #TODO: Realizar la función para imprimir un elemento
     pass
 
-def print_req_1(control):
+def print_req_1(list, num):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
-    pass
+    table = []
+    header = ['Publicación','Oferta','Empresa','Experticia','País','Ciudad','Tamaño','Ubicación','Contratar Ucranianos']
+    table.append(header)
+    jobs = lt.subList(list, lt.size(list)-num, num)
+
+    for job in lt.iterator(jobs):
+        table.append([job['published_at'],
+        job['title'],
+        job['company_name'],
+        job['experience_level'],
+        job['country_code'],
+        job['city'],
+        job['company_size'],
+        job['workplace_type'],
+        job['open_to_hire_ukrainians']])
+        
+    return table
 
 
-def print_req_2(control):
+def print_req_2(list, num):
     """
-        Función que imprime la solución del Requerimiento 2 en consola
+        Función que imprime la solución del Requerimiento 1 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 2
-    pass
+    # TODO: Imprimir el resultado del requerimiento 1
+    table = []
+    header = ['Publicación','País','Ciudad','Empresa','Oferta','Experticia','Formato de aplicación','Tipo']
+    table.append(header)
+    jobs = lt.subList(list, lt.size(list)-num, num)
+
+    for job in lt.iterator(jobs):
+        table.append([job['published_at'],
+        job['country_code'],
+        job['city'],
+        job['company_name'],
+        job['title'],
+        job['experience_level'],
+        job['company_url'],
+        job['workplace_type']])
+        
+    return table
 
 
 def print_req_3(control):
@@ -112,12 +144,34 @@ def print_req_4(control):
     pass
 
 
-def print_req_5(control):
+def print_req_5(list, num):
     """
-        Función que imprime la solución del Requerimiento 5 en consola
+        Función que imprime la solución del Requerimiento 1 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 5
-    pass
+    # TODO: Imprimir el resultado del requerimiento 1
+    table1 = []
+    table2 = []
+    header = ['Publicación','Oferta','Empresa','Tamaño','Ubicación']
+    table1.append(header)
+    table2.append(header)
+    jobs1 = lt.subList(list, 1, num)
+    jobs2 = lt.subList(list, lt.size(list)-num, num)
+
+    for job in lt.iterator(jobs1):
+        table1.append([job['published_at'],
+        job['title'],
+        job['company_name'],
+        job['company_size'],
+        job['workplace_type']])  
+
+    for job in lt.iterator(jobs2):
+        table2.append([job['published_at'],
+        job['title'],
+        job['company_name'],
+        job['company_size'],
+        job['workplace_type']])      
+        
+    return table1, table2
 
 
 def print_req_6(control):
@@ -145,7 +199,6 @@ def print_req_8(control):
 
 
 def printTableJobs(list, num):
-    num += 1
     table1 = []
     table2 = []
     header = ['Oferta','Empresa','Experticia','Publicación','País','Ciudad']
@@ -204,7 +257,11 @@ SortOp = """Seleccione el algoritmo de ordenamiento:
                  6. Heap Sort ||
                  7. Bogo Sort ||
                  8. TimSort (custom):"""
-
+Req1OP = """Seleccione un nivel de experiencia
+                junior
+                mid
+                senior
+"""
 # main del reto
 if __name__ == "__main__":
     """
@@ -215,7 +272,7 @@ if __name__ == "__main__":
     while working:
         print_menu()
         inputs = input('Seleccione una opción para continuar\n')
-        if int(inputs) == 1:
+        if int(inputs) == 1: #CARGA DE DATOS ------------------------------------------------------------------------------------------------
             # Definir el tipo de ED donde se cargan los archivos
             print('Como desea guardar los datos?\n')
             EDOp = input(EDOPStr)
@@ -240,26 +297,79 @@ if __name__ == "__main__":
             print('Habilidades cargadas '+ str(skills))
             
             num = input('Cuantas ofertas desea visualizar ')
-            table1, table2 = printTableJobs(control["model"]["Trabajos"], int(num)-1)
+            table1, table2 = printTableJobs(control["model"]["Trabajos"], int(num))
             print('Primeras ' + str(num) + " Ofertas")
             print(tabulate(table1))
             print('Ultimas ' + str(num) + " Ofertas")
             print(tabulate(table2))
             
-        elif int(inputs) == 2:
-            print_req_1(control)
+        elif int(inputs) == 2: #REQUERIMIENTO 1 ---------------------------------------------------------------------------------------------
+            pais = input('Por cúal país desea filtrar?\nIngresar código de país\n')
+            experiencia = input (Req1OP)
+            ans = controller.setCountryExperience(control, pais, experiencia)
+            control = ans[0]
+            req1size = ans[1]
+            DeltaTime = f"{ans[2]:.3f}"         
 
-        elif int(inputs) == 3:
-            print_req_2(control)
+            if req1size == 0:
+                print("País o experiencia invalido")
+            else: 
+                print("Para filtrar y organizar", req1size, "ofertas, el tiempo es:", str(DeltaTime), "[ms]")                
+                num = input('Cuantas ofertas desea visualizar ')
+                table = print_req_1(control['model']['REQ1'], int(num))             
+                print('Ultimas ' + str(num) + " Ofertas")
+                print(tabulate(table))           
 
-        elif int(inputs) == 4:
+        elif int(inputs) == 3: #REQUERIMIENTO 2 ---------------------------------------------------------------------------------------------
+            empresa = input('Cúal empresa desea filtrar?\n')
+            ciudad = input('Cúal ciudad desea filtrar?\n')
+            
+            ans = controller.setCompanyCity(control, empresa, ciudad)
+            control = ans[0]
+            req2size = ans[1]
+            DeltaTime = f"{ans[2]:.3f}"         
+
+            if req2size == 0:
+                print("Empresa o ciudad invalida")
+            else: 
+                print("Para filtrar y organizar", req2size, "ofertas, el tiempo es:", str(DeltaTime), "[ms]")                
+                num = input('Cuantas ofertas desea visualizar ')
+                table = print_req_2(control['model']['REQ2'], int(num))             
+                print('Ultimas ' + str(num) + " Ofertas")
+                print(tabulate(table))            
+
+        elif int(inputs) == 4: # Requerimiento 3 --------------------------------------------------------------------------------------------
             print_req_3(control)
 
         elif int(inputs) == 5:
             print_req_4(control)
 
-        elif int(inputs) == 6:
-            print_req_5(control)
+        elif int(inputs) == 6: #REQUERIMIENTO 5 ---------------------------------------------------------------------------------------------
+
+            ciudad = input("Que ciudad desea consultar?\n")
+            fecha1 = input("En que fecha desea iniciar? formato YYYY-MM-DD\n")
+            fecha2 = input("En que fecha desea terminar? formato YYYY-MM-DD\n")
+            
+            ans = controller.setCityDate(control, ciudad, fecha1, fecha2) #FILTRADO Y ORGANIZAR
+            control = ans[0]
+            req5size = ans[1]
+            DeltaTime = f"{ans[2]:.3f}"  
+            maxreq5, minreq5 = ans[3], ans[4]    
+            
+            if req5size == 0: #Si la lista regresa vacia, hubo problemas de filtrado
+                print("Ciudad o fechas invalidas")   
+            else:
+                print("Se encontraron", req5size,"ofertas entre las fechas", fecha1,"y",fecha2)
+                print("Para filtrar y organizar", req5size, "ofertas, el tiempo es:", str(DeltaTime), "[ms]")  #Cantidad de ofertas   
+                print("La empresa con mayor ofertas es",maxreq5[0],"con",str(maxreq5[1]),"ofertas")
+                print("La empresa con menor ofertas es",minreq5[0],"con",str(minreq5[1]),"ofertas")
+                
+                num = input('Cuantas ofertas desea visualizar ')
+                table1, table2 = print_req_5(control['model']['REQ5'], int(num))             
+                print('Primeras ' + str(num) + " Ofertas")
+                print(tabulate(table1))
+                print('Ultimas ' + str(num) + " Ofertas")
+                print(tabulate(table2))
 
         elif int(inputs) == 7:
             print_req_6(control)
@@ -293,7 +403,7 @@ if __name__ == "__main__":
               str(DeltaTime), "[ms]")        
              
             num = input('Cuantas ofertas desea visualizar ')
-            table1, table2 = printTableJobs(sortedJobs, int(num)-1)             
+            table1, table2 = printTableJobs(sortedJobs, int(num))             
             print('Primeras ' + str(num) + " Ofertas")
             print(tabulate(table1))
             print('Ultimas ' + str(num) + " Ofertas")
