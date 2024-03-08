@@ -128,13 +128,27 @@ def print_req_2(list, num):
     return table
 
 
-def print_req_3(control):
+
+def print_req_3(list, num):
     """
         Función que imprime la solución del Requerimiento 3 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 3
-    pass
+    table = []
+    header = ['Publicación','Oferta','Experticia','Ciudad','País','Tamaño','Ubicación','Contratar Ucranianos']
+    table.append(header)
+    jobs = lt.subList(list, lt.size(list)-num, num)
 
+    for job in lt.iterator(jobs):
+        table.append([job['published_at'],
+        job['title'],
+        job['experience_level'],
+        job['city'],
+        job['country_code'],
+        job['company_size'],
+        job['workplace_type'],
+        job['open_to_hire_ukrainians']])
+        
+    return table
 
 def print_req_4(control):
     """
@@ -174,13 +188,28 @@ def print_req_5(list, num):
     return table1, table2
 
 
-def print_req_6(control):
-    """
-        Función que imprime la solución del Requerimiento 6 en consola
-    """
-    # TODO: Imprimir el resultado del requerimiento 6
-    pass
+def classifyCitiesWithMostJobOffers(control): #REQUERIMIENTO 6
+    try:
+        N = int(input("Ingrese el número de ciudades para consulta: "))
+        country_code = input("Ingrese el código del país (opcional, dejar en blanco para consultar todas las ciudades): ")
+        experience_level = input("Ingrese el nivel de experiencia de las ofertas (junior, mid o senior): ")
+        start_date = input("Ingrese la fecha inicial del periodo a consultar (formato YYYY-MM-DD): ")
+        end_date = input("Ingrese la fecha final del periodo a consultar (formato YYYY-MM-DD): ")
 
+        result = controller.classifyCitiesWithMostJobOffers(control, N, country_code, experience_level, start_date, end_date)
+        
+        # Presenta el resultado al usuario de acuerdo con el formato especificado en el requerimiento
+        print("Total de ciudades:", result["total_cities"])
+        print("Total de empresas:", result["total_companies"])
+        print("Total de ofertas publicadas:", result["total_offers"])
+        if country_code:
+            print("Promedio del salario ofertado:", result["average_salary"])
+        print("Ciudad con mayor cantidad de ofertas:", result["city_with_most_offers"])
+        print("Ciudad con menor cantidad de ofertas:", result["city_with_least_offers"])
+        print("Listado de ciudades:")
+        print(tabulate(result["cities_list"], headers="keys"))
+    except Exception as e:
+        print("Ocurrió un error al clasificar las ciudades con mayor número de ofertas de trabajo:", e)
 
 def print_req_7(control):
     """
@@ -190,12 +219,21 @@ def print_req_7(control):
     pass
 
 
-def print_req_8(control):
+def print_req_8(country_stats, highest_salary_country, lowest_salary_country):
     """
-        Función que imprime la solución del Requerimiento 8 en consola
+    Imprime el resultado del Requerimiento 8
     """
-    # TODO: Imprimir el resultado del requerimiento 8
-    pass
+    print("Estadísticas Generales:")
+    print(f"Total de empresas: {country_stats['total_companies']}")
+    print(f"Total de ofertas de empleo: {country_stats['total_offers']}")
+    print(f"Número de países: {len(country_stats)}")
+    # Otras estadísticas generales
+    print("Lista de países por promedio salarial:")
+    for country in country_stats:
+        print(f"- {country['country']}: Promedio Salarial: {country['average_salary']}")
+    print("Países con Mayor y Menor Oferta Salarial:")
+    print(f"Mayor Oferta Salarial: {highest_salary_country['country']}")
+    print(f"Menor Oferta Salarial: {lowest_salary_country['country']}")
 
 
 def printTableJobs(list, num):
@@ -339,7 +377,23 @@ if __name__ == "__main__":
                 print(tabulate(table))            
 
         elif int(inputs) == 4: # Requerimiento 3 --------------------------------------------------------------------------------------------
-            print_req_3(control)
+            empresa = input('¿Cuál empresa desea filtrar?\n')
+            fecha_inicial = input('Ingrese la fecha inicial (formato "%Y-%m-%d")\n')
+            fecha_final = input('Ingrese la fecha final (formato "%Y-%m-%d")\n')
+    
+            ans = controller.setCompanyDateExperience(control, empresa, fecha_inicial, fecha_final)
+            control = ans[0]
+            req3size = ans[1]
+            DeltaTime = f"{ans[2]:.3f}"         
+
+            if req3size == 0:
+                print("Empresa o rango de fechas inválido")
+            else: 
+                print("Para filtrar y organizar", req3size, "ofertas, el tiempo es:", str(DeltaTime), "[ms]")                
+                num = input('¿Cuántas ofertas desea visualizar? ')
+                table = print_req_3(control['model']['REQ3'], int(num))             
+                print('Últimas ' + str(num) + " Ofertas")
+                print(tabulate(table))
 
         elif int(inputs) == 5:
             print_req_4(control)
@@ -372,7 +426,7 @@ if __name__ == "__main__":
                 print(tabulate(table2))
 
         elif int(inputs) == 7:
-            print_req_6(control)
+            classifyCitiesWithMostJobOffers(control)
 
         elif int(inputs) == 8:
             print_req_7(control)

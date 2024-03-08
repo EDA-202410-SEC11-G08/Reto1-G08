@@ -154,12 +154,45 @@ def sortCompanyCity(catalog, empresa, ciudad): # REQUERIMIENTO 2
         catalog['REQ2'] = jobsf
     return catalog, jobsfsize 
 
-def req_3(data_structs):
+def sortCompanyDateExperience(catalog, empresa, fecha_inicial, fecha_final): # REQUERIMIENTO 3
     """
     Función que soluciona el requerimiento 3
     """
-    # TODO: Realizar el requerimiento 3
-    pass
+    jobs = catalog["Trabajos"]
+    jobsf = lt.newList("ARRAY_LIST")
+    for job in lt.iterator(jobs): #Revisar cada oferta de trabajo
+        if (cmp_empresa_fecha(job, empresa, fecha_inicial, fecha_final) == True):
+            lt.addLast(jobsf, job) #Añadir a la nueva lista filtrada si coincide con los criterios
+    jobsfsize = lt.size(jobsf)
+    if jobsfsize != 0:
+        jobsf = sort_algorithm.sort(jobsf, cmp_fecha_pais)
+        catalog['REQ3'] = jobsf
+    return catalog, jobsfsize 
+
+
+def cmp_empresa_fecha(job, empresa, fecha_inicial, fecha_final):
+    """
+    Compara si la empresa y la fecha de la oferta de trabajo coinciden con los criterios.
+    La fecha de la oferta de trabajo debe estar en el rango [fecha_inicial, fecha_final].
+    """
+    fecha_oferta = date.strptime(job['published_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    fecha_inicial = date.strptime(fecha_inicial, '%Y-%m-%d')
+    fecha_final = date.strptime(fecha_final, '%Y-%m-%d')
+
+    return job['company_name'] == empresa and fecha_inicial <= fecha_oferta <= fecha_final
+
+def cmp_fecha_pais(offer1, offer2):
+    """
+    Compara la fecha y el país de las ofertas de trabajo.
+    Primero compara las fechas, y si son iguales, entonces compara los países.
+    """
+    date1 = date.strptime(offer1["published_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    date2 = date.strptime(offer2["published_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    if date1 != date2:
+        return date1 < date2
+    else:
+        return offer1['country_code'] < offer2['country_code']
 
 
 def req_4(data_structs):
@@ -213,12 +246,44 @@ def sortCityDate(catalog, ciudad, fecha1, fecha2):
     return catalog, jobsfsize, max, min
 
 
-def req_6(data_structs):
+def classifyCitiesWithMostJobOffers(N, country_code, experience_level, start_date, end_date): #REQUERIMIENTO 6
+    try:
+        city_data = loadCityDataFromFile()
+
+        # Ordenar las ciudades por el número de ofertas (de mayor a menor) y luego por el promedio de salario
+        sorted_cities = sorted(city_data, key=lambda x: (x['total_offers'], x['average_salary']), reverse=True)
+
+        # Preparar la respuesta con los datos requeridos
+        response = {
+            "total_cities": len(city_data),
+            "total_companies": sum(city['total_companies'] for city in city_data),
+            "total_offers": sum(city['total_offers'] for city in city_data),
+            "average_salary": sum(city['average_salary'] for city in city_data) / len(city_data),
+            "city_with_most_offers": sorted_cities[0]['city_name'],
+            "city_with_least_offers": sorted_cities[-1]['city_name'],
+            "cities_list": sorted_cities[:N] if len(sorted_cities) > N else sorted_cities
+        }
+
+        return response
+    except Exception as e:
+        # Manejo de errores
+        raise e
+
+def loadCityDataFromFile(filename):
     """
-    Función que soluciona el requerimiento 6
+    Carga los datos de las ciudades desde un archivo CSV
     """
-    # TODO: Realizar el requerimiento 6
-    pass
+    city_data = []
+    with open(filename, 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            city_data.append({
+                "city_name": row['city_name'],
+                "total_offers": int(row['total_offers']),
+                "average_salary": float(row['average_salary']),
+                "total_companies": int(row['total_companies'])
+            })
+    return city_data
 
 
 def req_7(data_structs):
@@ -229,12 +294,63 @@ def req_7(data_structs):
     pass
 
 
-def req_8(data_structs):
+def req_8(offers):
     """
-    Función que soluciona el requerimiento 8
+    Calcula el salario promedio de las ofertas con rango salarial
     """
-    # TODO: Realizar el requerimiento 8
-    pass
+    total_salary = sum((offer["min_salary"] + offer["max_salary"]) / 2 for offer in offers if offer["min_salary"] is not None and offer["max_salary"] is not None)
+    num_salary_offers = sum(1 for offer in offers if offer["min_salary"] is not None and offer["max_salary"] is not None)
+    if num_salary_offers > 0:
+        return total_salary / num_salary_offers
+    return None
+
+def country_stats(offers, currency_conversion):
+    """
+    Calcula las estadísticas de los países y ordena por promedio salarial
+    """
+    country_data = {}
+    for offer in offers:
+        country = offer["country"]
+        if country not in country_data:
+            country_data[country] = {
+                "total_offers": 0,
+                "total_companies": 0,
+                "total_salary_offers": 0,
+                "total_fixed_salary_offers": 0,
+                "total_no_salary_offers": 0,
+                "total_skills": 0,
+                "average_salary": None
+            }
+        country_data[country]["total_offers"] += 1
+        if offer["min_salary"] is not None and offer["max_salary"] is not None:
+            country_data[country]["total_salary_offers"] += 1
+        elif offer["fixed_salary"] is not None:
+            country_data[country]["total_fixed_salary_offers"] += 1
+        else:
+            country_data[country]["total_no_salary_offers"] += 1
+        country_data[country]["total_companies"] = len(set(offer["company"] for offer in offers))
+        country_data[country]["total_skills"] += offer["skills"]
+    
+    for country in country_data:
+        if country_data[country]["total_salary_offers"] > 0:
+            country_data[country]["average_salary"] = calculate_average_salary(offers)
+    
+    sorted_countries = sorted(country_data.items(), key=lambda x: (x[1]["average_salary"] is None, x[1]["average_salary"]), reverse=True)
+    return [{"country": country[0], **country[1]} for country in sorted_countries]
+
+def highest_lowest_salary_countries(country_stats):
+    """
+    Encuentra el país con el salario promedio más alto y más bajo
+    """
+    highest_salary_country = None
+    lowest_salary_country = None
+    for country in country_stats:
+        if country["average_salary"] is not None:
+            if highest_salary_country is None or country["average_salary"] > highest_salary_country["average_salary"]:
+                highest_salary_country = country
+            if lowest_salary_country is None or country["average_salary"] < lowest_salary_country["average_salary"]:
+                lowest_salary_country = country
+    return highest_salary_country, lowest_salary_country
 
 def selectDataSize(algo_opt):
     """
