@@ -26,6 +26,7 @@ import time
 import csv
 import datetime as date
 
+
 csv.field_size_limit(2147483647)
 
 """
@@ -205,12 +206,19 @@ def setCompanyCity(control, empresa, ciudad):
     delta = delta_time(start_time, end_time) #OBTENER TIEMPO FILTRADO Y    
     return control, size, delta
 
-def req_3(control):
+def setCompanyDateExperience(control, empresa, fecha_inicial, fecha_final): # Requerimiento 3
     """
     Retorna el resultado del requerimiento 3
+    Ingresar catalogo, empresa, fecha inicial y fecha final
     """
-    # TODO: Modificar el requerimiento 3
-    pass
+    jobs = control["model"]
+    start_time = get_time() #INICIAR TIEMPO RQ3
+    ans = model.sortCompanyDateExperience(jobs, empresa, fecha_inicial, fecha_final)
+    end_time = get_time() #TERMINAR TIEMPO RQ3
+    control["model"] = ans[0]
+    size = ans[1] 
+    delta = delta_time(start_time, end_time) #OBTENER TIEMPO FILTRADO Y    
+    return control, size, delta
 
 
 def req_4(control):
@@ -238,12 +246,14 @@ def setCityDate(control, ciudad, fecha1, fecha2):
      
     return control, size, delta, max, min
 
-def req_6(control):
-    """
-    Retorna el resultado del requerimiento 6
-    """
-    # TODO: Modificar el requerimiento 6
-    pass
+def classifyCitiesWithMostJobOffers(control, N, country_code, experience_level, start_date, end_date): #REQUERIMIENTO 6
+    try:
+        result = model.classifyCitiesWithMostJobOffers(N, country_code, experience_level, start_date, end_date)
+        # Devuelve el resultado al punto de entrada (view.py) 
+        return result
+    except Exception as e:
+        # Manejo de errores
+        raise e
 
 
 def req_7(control):
@@ -254,12 +264,15 @@ def req_7(control):
     pass
 
 
-def req_8(control):
+def req_8(control, expertise, start_date, end_date):
     """
-    Retorna el resultado del requerimiento 8
+    Retorna el resultado del Requerimiento 8
     """
-    # TODO: Modificar el requerimiento 8
-    pass
+    offers = filter_offers(control, expertise, start_date, end_date)
+    currency_conversion = control["currency_conversion"]
+    country_statistics = model.country_stats(offers, currency_conversion)
+    highest_salary_country, lowest_salary_country = model.highest_lowest_salary_countries(country_statistics)
+    return country_statistics, highest_salary_country, lowest_salary_country
 
 
 # Funciones para medir tiempos de ejecucion
