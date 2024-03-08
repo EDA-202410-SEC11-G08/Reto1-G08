@@ -129,7 +129,7 @@ def sortCountryExperience(catalog, pais, experiencia): # REQUERIMIENTO 1
     jobs = catalog["Trabajos"]
     jobsf = lt.newList("ARRAY_LIST")
     for job in lt.iterator(jobs): #Revisar cada oferta de trabajo
-        if (cmp_pais_experiencia(job, pais, experiencia) == True):
+        if (flt_pais_experiencia(job, pais, experiencia) == True):
             lt.addLast(jobsf, job) #Añadir a la nueva lista filtrada si coincide con los criterios
     jobsfsize = lt.size(jobsf)
     if jobsfsize != 0:
@@ -146,7 +146,7 @@ def sortCompanyCity(catalog, empresa, ciudad): # REQUERIMIENTO 2
     jobs = catalog["Trabajos"]
     jobsf = lt.newList("ARRAY_LIST")
     for job in lt.iterator(jobs): #Revisar cada oferta de trabajo
-        if (cmp_ciudad_empresa(job, empresa, ciudad) == True):
+        if (flt_ciudad_empresa(job, empresa, ciudad) == True):
             lt.addLast(jobsf, job) #Añadir a la nueva lista filtrada si coincide con los criterios
     jobsfsize = lt.size(jobsf)
     if jobsfsize != 0:
@@ -216,7 +216,7 @@ def sortCityDate(catalog, ciudad, fecha1, fecha2):
     empresamin = None
     
     for job in lt.iterator(jobs): #Revisar cada oferta de trabajo
-        if  (cmp_ciudad_fecha(job, ciudad, fecha1, fecha2) == True): 
+        if  (flt_ciudad_fecha(job, ciudad, fecha1, fecha2) == True): 
             lt.addLast(jobsf, job) #Añadir a la nueva lista filtrada si coincide con los criterios
             
             if job['company_name'] in empresas: #Contador de ofertas por empresa para saber maximo y minimo
@@ -286,12 +286,154 @@ def loadCityDataFromFile(filename):
     return city_data
 
 
-def req_7(data_structs):
+def req_7(catalog, fecha1, fecha2, num): # REQUERIMIENTO 7
     """
     Función que soluciona el requerimiento 7
     """
+    # Contadores para maximos y minimos
+    contmaxp = 0
+    contmaxc = 0
+    contciudad = 0
+    contloc = [0,0,0]
+    conthabil = [0,0,0]
+    contmaxh = [0,0,0]
+    contminh = [0,0,0]
+    contmaxe = [0,0,0]
+    contmine = [0,0,0]
+    contmaxh = [0,0,0]
+    contminh = [0,0,0]
+    promedio = [0,0,0]
+    i = 0
+    paismax = None
+    ciudadmax = None
+    empresamax = [None, None, None]
+    empresamin = [None, None, None]
+    habilmax = [None, None, None]
+    habilmin = [None, None, None]
+    # Listas para organizar info temporal
+    jobs = catalog["Trabajos"]
+    multiloc = catalog["Multi Locaciones"]
+    skills = catalog["Habilidades"]
+    jobsf = lt.newList('ARRAY_LIST')
+    paisesf = lt.newList('ARRAY_LIST') # Lista de paises y contadores
+    jobs_p = lt.newList('ARRAY_LIST') #Trabajos por pais
+    jobs_j = lt.newList('ARRAY_LIST') #Trabajos junior
+    jobs_m = lt.newList('ARRAY_LIST') #Trabajos mid
+    jobs_s = lt.newList('ARRAY_LIST') #Trabajos senior
+    
+    # Diccionarios para almacenar info temporal
+    paises = {}
+    ciudades = {}
+    empresas = [{},{},{}]
+    habilidades = [{},{},{}]
+    local = [{},{},{}]
+
+    exp = [jobs_j, jobs_m, jobs_s] # Iterable para realizar las mismas operaciones para cada nivel diferente
+    
+    for job in lt.iterator(jobs): #Revisar cada oferta de trabajo
+        if (flt_fecha(job, fecha1, fecha2) == True):
+            lt.addLast(jobsf, job)
+            
+            if job['country_code'] in paises: #Contador de paises
+                paises[job['country_code']] += 1 
+                if contmaxp < paises[job['country_code']]: #Identificar maximo 
+                    contmaxp = paises[job['country_code']]
+                    paismax = job['country_code']                    
+            else:
+                paises[job['country_code']] = 1 
+    
+    for pais in paises:
+        lt.addLast(paisesf,(pais, paises[pais])) # Convertir diccionario en ED para ordenar
+
+    paisesf = sort_algorithm.sort(paisesf, cmp_cantidad)
+    paisesf = lt.subList(paisesf, 1, int(num))
+        
+    for pais in lt.iterator(paisesf): 
+        for job in lt.iterator(jobsf):
+            if job['country_code'] == pais[0]: #Añadir funcion de filtro
+                lt.addLast(jobs_p, job) #Lista de ofertas en los num paises seleccionados
+                
+                if (job['experience_level'] == 'junior'): # Añadir ofertas a junior
+                    lt.addLast(jobs_j, job) 
+                elif (job['experience_level'] == 'mid'): # Añadir ofertas a mid
+                    lt.addLast(jobs_m, job)
+                elif (job['experience_level'] == 'senior'): # Añadir ofertas a senior
+                    lt.addLast(jobs_s, job)          
+                
+                if job['city'] in ciudades:
+                    ciudades[job['city']] += 1
+                    if contmaxc < ciudades[job['city']]: #Identificar max
+                        contmaxc = ciudades[job['city']]
+                        ciudadmax = job['city']
+                else:
+                    ciudades[job['city']] = 1
+                    contciudad += 1   # Cantidad de ciudades ofertadas en los num paises seleccionados
+
+    for jobs_e in exp:
+        for job in lt.iterator(jobs_e):
+            if (job['company_name'].lower() in empresas[i]): #Contador de empresas
+                empresas[i][job['company_name'].lower()] += 1 
+                if contmaxe[i] < empresas[i][job['company_name'].lower()]: #Identificar maximo 
+                    contmaxe[i] = empresas[i][job['company_name'].lower()]
+                    empresamax[i] = job['company_name'].lower()                    
+            else:
+                empresas[i][job['company_name'].lower()] = 1                  
+                
+        for empresa in empresas[i]: # Minimo de empresa
+            if empresas[i][empresa] <= contmaxe[i]:
+                contmine[i] = empresas[i][empresa]
+                empresamin[i] = empresa
+
+        sumas = 0
+        conth = 0  
+        for habilidad in lt.iterator(skills):
+            if (habilidad['id'].split("-")[0] in empresas[i]):
+                sumas += int(habilidad['level'])
+                conth += 1
+                
+                if ((habilidad['name']) in habilidades[i]):
+                    habilidades[i][habilidad['name']] += 1 
+                    if contmaxh[i] < habilidades[i][habilidad['name']]: #Identificar maximo 
+                        contmaxh[i] = habilidades[i][habilidad['name']]
+                        habilmax[i] = habilidad['name'] 
+                else: 
+                    habilidades[i][habilidad['name']] = 1
+                    conthabil[i] += 1
+        
+        promedio[i] = sumas/conth
+        
+        for habilidad in habilidades[i]: # Minimo de habilidades
+            if habilidades[i][habilidad] <= contmaxh[i]:
+                contminh[i] = habilidades[i][habilidad]
+                habilmin[i] = habilidad
+                
+        for loc in lt.iterator(multiloc): # ARREGLAR CODIGO, 
+            empresa = loc['id'].split("-")[0]
+            if (empresa in empresas[i]):
+                if ((empresa) in local[i]):
+                    if loc['city'] not in local[i][empresa]:
+                        local[i][empresa].append(loc['city'])
+                else: 
+                    local[i][empresa] = [loc['city']]
+        
+        for loc in local[i]:
+            if (len(local[i][loc]) > 1):
+                contloc[i] += 1                
+        i += 1
+                
+    
+    maxp = (paismax, contmaxp) #Pais con mas ofertas y numero
+    maxc = (ciudadmax, contmaxc) #Ciudad con mas ofertas y numero
+    maxe = (empresamax, contmaxe) # Empresa con mas ofertas y numero, dependiendo de experiencia J-M-S
+    mine = (empresamin, contmine) # Empresa con menos ofertas y numero, dependiendo de experiencia J-M-S
+    maxh = (habilmax, contmaxh) # Habilidad mas solicitada y numero J-M-S
+    minh = (habilmin, contminh) # Habilidad menos solicitada y numero J-M-S
+    
+    size = [lt.size(jobs_p), contciudad, conthabil, lt.size(jobs_j), lt.size(jobs_m), lt.size(jobs_s), contloc] 
+    max = [maxp, maxc, maxe, maxh]
+    min = [mine, minh]
     # TODO: Realizar el requerimiento 7
-    pass
+    return catalog, size, max, min, promedio
 
 
 def req_8(offers):
@@ -498,7 +640,7 @@ def selectEDType(catalog, EDOp):
     
     return EDmsg
 
-# Funciones utilizadas para comparar elementos dentro de una lista
+# Funciones utilizadas para comparar y filtrar elementos dentro de una lista
 
 def compare(data_1, data_2):
     """
@@ -522,7 +664,7 @@ def cmp_ofertas_by_empresa_y_fecha (oferta1, oferta2):
         else: return False
     else: return False       
     
-def cmp_pais_experiencia (oferta, pais, experiencia): #Criterio de filtrado REQUERIMIENTO 1
+def flt_pais_experiencia (oferta, pais, experiencia): #Criterio de filtrado REQUERIMIENTO 1
     """ Devuelve verdadero (True) si la empresa de la oferta pertenece al país y experiencia seleccionados
         """
     if (oferta["country_code"] == pais) and (oferta["experience_level"] == experiencia):
@@ -534,12 +676,12 @@ def cmp_fecha_publicacion(oferta1, oferta2): #Criterio de ordenamiento de RQ 1 -
         return True
     else: return False
 
-def cmp_ciudad_empresa(oferta, empresa, ciudad ): #Criterio de filtrado RQ2
+def flt_ciudad_empresa(oferta, empresa, ciudad ): #Criterio de filtrado RQ2
     if (oferta['city'] == ciudad) and (oferta['company_name'] == empresa):
         return True
     else: return False
     
-def cmp_ciudad_fecha(oferta, ciudad, fecha1, fecha2): #Criterio de filtrado de RQ 5
+def flt_ciudad_fecha(oferta, ciudad, fecha1, fecha2): #Criterio de filtrado de RQ 5
     if ((oferta['city'] == ciudad) 
         and (date.strptime(oferta["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") >= date.strptime(fecha1,"%Y-%m-%d"))
         and (date.strptime(oferta["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") <= date.strptime(fecha2,"%Y-%m-%d"))):
@@ -553,6 +695,17 @@ def cmp_fecha_empresa(oferta1, oferta2): #Criterio ordenamiento RQ 5 - Fecha men
         if (oferta1["company_name"] < oferta2["company_name"]):
             return True
         else: return False
+    else: return False
+
+def flt_fecha(oferta, fecha1, fecha2): #Criterio de filtrado RQ7
+    if ((date.strptime(oferta["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") >= date.strptime(fecha1,"%Y-%m-%d"))
+        and (date.strptime(oferta["published_at"],"%Y-%m-%dT%H:%M:%S.%fZ") <= date.strptime(fecha2,"%Y-%m-%d"))):  
+        return True
+    else: return False
+
+def cmp_cantidad(oferta1, oferta2):
+    if (oferta1[1] >= oferta2[1]):
+        return True
     else: return False
 
  # Funciones de ordenamiento

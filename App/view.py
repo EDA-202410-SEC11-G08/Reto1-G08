@@ -50,7 +50,7 @@ def newController():
 
 def print_menu():
     print("commit")
-    print("Bienvenido")
+    print("\nBienvenido")
     print("1- Cargar información")
     print("2- Ejecutar Requerimiento 1")
     print("3- Ejecutar Requerimiento 2")
@@ -60,7 +60,7 @@ def print_menu():
     print("7- Ejecutar Requerimiento 6")
     print("8- Ejecutar Requerimiento 7")
     print("9- Ejecutar Requerimiento 8")
-    print("Funciones para Lab 5")
+    print("Funciones para Lab 5-----------------")
     print("10- Escoger algoritmo de ordenamiento")
     print("11- Ordenar datos")
     print("0- Salir")
@@ -211,10 +211,29 @@ def classifyCitiesWithMostJobOffers(control): #REQUERIMIENTO 6
     except Exception as e:
         print("Ocurrió un error al clasificar las ciudades con mayor número de ofertas de trabajo:", e)
 
-def print_req_7(control):
+def print_req_7(control, maxreq7, minreq7, size, promedio):
     """
         Función que imprime la solución del Requerimiento 7 en consola
     """
+    i = 0
+    print("El total de ofertas de empleo:",size[0]) #Total de ofertas en los paises seleccionados
+    print("Número de ciudades donde se ofertó en los países resultantes", size[1])
+    print("País con mayor cantidad de ofertas:",maxreq7[0][0],",",maxreq7[0][1])
+    print("Ciudad con mayor cantidad de ofertas:",maxreq7[1][0],",",maxreq7[1][1])
+    exp = ["junior","mid","senior"]
+    for lvl in exp:
+        print("\nPara",lvl,"----------------------")
+        print("Número de habilidades:",size[2][i])
+        print("La habilidad más solicitada es",maxreq7[3][0][i],"-",maxreq7[3][1][i])
+        print("La habilidad menos solicitada es",minreq7[1][0][i],"-",minreq7[1][1][i])
+        print("Nivel promedio de habilidades",promedio[i])
+        print("Conteo de empresas que publicaron una oferta en este nivel:",size[3+i])
+        print("Empresa con mayor número de ofertas:",maxreq7[2][0][i],"-", maxreq7[2][1][i])
+        print("Empresa con menor número de ofertas:",minreq7[0][0][i],"-", minreq7[0][1][i])        
+        print("Número de empresas con una o más sedes:", size[6][i])
+        i += 1
+
+    
     # TODO: Imprimir el resultado del requerimiento 7
     pass
 
@@ -428,8 +447,19 @@ if __name__ == "__main__":
         elif int(inputs) == 7:
             classifyCitiesWithMostJobOffers(control)
 
-        elif int(inputs) == 8:
-            print_req_7(control)
+        elif int(inputs) == 8: # REQUERIMIENTO 7 --------------------------------------------------------------------------------------
+            num = input('Cuantos paises desea consultar?')
+            fecha1 = input("En que fecha desea iniciar? formato YYYY-MM-DD\n")
+            fecha2 = input("En que fecha desea terminar? formato YYYY-MM-DD\n")
+            
+            ans = controller.req_7(control, fecha1, fecha2, num)
+            control = ans[0]
+            size = ans[1]
+            DeltaTime = f"{ans[2]:.3f}"  
+            maxreq7, minreq7 = ans[3], ans[4]            
+            promedio = ans[5]
+            print("El Tiempo es:", str(DeltaTime), "[ms]")  #Cantidad de ofertas   
+            print_req_7(control, maxreq7, minreq7, size, promedio)
 
         elif int(inputs) == 9:
             print_req_8(control)
