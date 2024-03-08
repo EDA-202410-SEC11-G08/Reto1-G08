@@ -76,7 +76,7 @@ def loadEmploymentTypes(catalog):
     Carga csv employment_types
     """
     tagsfile = cf.data_dir + 'small-employments_types.csv'
-    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'), restval= 'Desconocido', delimiter= ";")
     for row in input_file:  
         model.addET(catalog, row)
     return model.ETSize(catalog)
@@ -86,7 +86,7 @@ def loadMultiLocations(catalog):
     Carga csv multilocations
     """
     tagsfile = cf.data_dir + 'small-multilocations.csv'
-    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'), restval= 'Desconocido', delimiter= ";")
     for row in input_file:
         model.addML(catalog,row)
     return model.MLSize(catalog)
@@ -96,7 +96,7 @@ def loadSkills(catalog):
     Carga csv skills
     """
     tagsfile = cf.data_dir + 'small-skills.csv'
-    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
+    input_file = csv.DictReader(open(tagsfile, encoding='utf-8'), restval= 'Desconocido', delimiter= ";")
     for row in input_file:
         model.addSkills(catalog,row)
     return model.SkillSize(catalog)
@@ -246,12 +246,23 @@ def req_6(control):
     pass
 
 
-def req_7(control):
+def req_7(control, fecha1, fecha2, num):
     """
     Retorna el resultado del requerimiento 7
+    catalogo, fecha de inicio, fecha final y numero de paises
     """
     # TODO: Modificar el requerimiento 7
-    pass
+    jobs = control["model"]
+    start_time = get_time() #INICIAR TIEMPO RQ5
+    ans = model.req_7(jobs, fecha1, fecha2, num)
+    end_time = get_time() #TERMINAR TIEMPO RQ5
+    control["model"] = ans[0]
+    size = ans[1] 
+    max, min = ans[2], ans[3]
+    promedio = ans[4]
+    delta = delta_time(start_time, end_time) #OBTENER TIEMPO FILTRADO Y   
+    
+    return control, size, delta, max, min, promedio
 
 
 def req_8(control):
